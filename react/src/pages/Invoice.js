@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+const { uuid } = require('uuidv4');
 
 import './Invoice.css';
 import logoImage from '../assets/images/metaware_logo.png';
@@ -33,20 +33,35 @@ function Invoice(){
           const [isShow,setIsShow]= useState(' ')
           const [print,noPrint] = useState(false)
           
-          const [items,setItems] = useState([{ qty: 10, description: 'Gadget', cost: 9.95}]);
+          const [items,setItems] = useState([{ qty: 10, description: 'Gadget', cost: 9.95, id:uuid()}]);
           
         function handleAddObject(){
-
-            setItems([...items,{ qty: 10, description: 'Gadget', cost: 9.95}])
-
+            
+            setItems([...items,{ qty: 0, description: '', cost: 0, id:uuid()}])
+            
         }
 
-        function handleRemoveObject(){
+        function handleRemoveObject(item){
 
-            var item =[...items];
-            item = item.splice(1,5);
+            var getId = function(id){
+                if(id != item.id){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
 
-            setItems([{items:item}])
+            var getIdItem = items.filter(getId);
+
+            let index = items.findIndex((objeto)=>{objeto.id == item.id})
+            let products = [...items]
+            products.splice(index,1)
+
+            setItems(products);
+        
+          
+            
         }
 
         function handleEditLogo(){
@@ -123,11 +138,11 @@ function Invoice(){
       
         
        {items.map((item) => [ 
-        <div className="row invoice-item" key={item}>
+        <div className="row invoice-item" key={items.id}>
         <div className="col-xs-1 " style={{display: print ? 'none':''}}>
-              <a className="btn btn-danger" onClick={handleRemoveObject} >[x]</a>
+              <a className="btn btn-danger" onClick={() => handleRemoveObject(item)} >[x]</a>
         </div>
-         <Items description= {item.description} qty={item.qty} cost={item.cost} />
+         <Items description= {item.description} qty={item.qty} cost={item.cost} id={item.id} />
 
          <div className="col-xs-2 text-right input-container">
           {/*item.cost * item.qty | currency:*/}
