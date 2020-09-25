@@ -17,8 +17,8 @@ To build the project to production use the webpack script yarn build
 
 Used technologies:
 
-  -ReactJs
-  -Babel
-  -Webpack
-  -Yarn
-  -JavaScript
+  -ReactJs </br>
+  -Babel </br>
+  -Webpack </br>
+  -Yarn </br>
+  -JavaScript </br>
