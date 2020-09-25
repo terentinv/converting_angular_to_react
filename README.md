@@ -1,5 +1,5 @@
 # converting_angular_to_react
-In this project, I am converting the code from angularjs to reactjs with the same funcionalities.
+In this project, I am converting the code from angularjs to reactjs with the same funcionalities.</br>
 Based in the source repository: https://github.com/metaware/angular-invoicing
 
 # :gear:  Yarn
