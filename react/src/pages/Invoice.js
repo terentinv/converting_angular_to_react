@@ -4,8 +4,9 @@ const { v4:uuid } = require('uuid');
 import './Invoice.css';
 import logoImage from '../assets/images/metaware_logo.png';
 import Footer from '../components/Footer/Footer';
-import Input from '../components/Input/Input';
-import Select from '../components/Select/Select';
+import Table from '../components/Table/Table';
+import Header from '../components/Header/Header';
+import Infos from '../components/Infos/Infos';
 
 
 
@@ -35,13 +36,32 @@ function Invoice(){
           const [isShow,setIsShow]= useState(' ');
           const [print,setPrint] = useState(false);      
           const [product,setProduct] = useState([{ qty: 10, description: 'Gadget', cost: 9.95, id:uuid(),total:99.50}]);
-          const [tax, setTax] = useState(13.00);
-          const [currencySimbol,setCurrencySimbol] = useState('$')
+          const [tax, setTax] = useState(13);
+          const [discount, setDiscount] = useState(10);
+          const [currencySimbol,setCurrencySimbol] = useState('₹')
 
-          
-
+         
+        function handleUpdateDiscount(value){
+            let discount = value
+            if(discount == ''){
+                discount = 0
+            }
+            setDiscount(discount);
+        } 
+        function handleCalculateDiscount(){
+            return ((discount * handleCalculateSubTotal())/100).toFixed(2);
+        }
         function handleReset(){
-            
+            let r = confirm('Are you sure you would like to clear the invoice?')
+            if(r){
+                let products = [...product]
+                products.splice(1,products.length)
+                
+                setProduct(products) 
+                setCurrencySimbol('₹')
+                setTax(13.00)
+                setDiscount(10)
+            }
         }
         function handleAddObject(){
             
@@ -64,8 +84,13 @@ function Invoice(){
             setTax(tax);
         }
         function handleCalculateGrandtotal(){
-            let calculateGrandTotal = (parseFloat(handleCalculateSubTotal()) + parseFloat(tax));
+            let calculateGrandTotal;
+            if(parseFloat(handleCalculateSubTotal()+ parseFloat(tax))< discount){
 
+                calculateGrandTotal = 0
+            }else{
+                calculateGrandTotal = (parseFloat(handleCalculateSubTotal()) + parseFloat(tax))-parseFloat(discount);
+            }
             return calculateGrandTotal.toFixed(2);
         }
 
@@ -112,134 +137,49 @@ function Invoice(){
         }
    
     return (
-        <>
-    {/*header*/}
+        
+  
         <div className="container" width="800px" id="invoice">
-            <div className="row">
-                <div className="col-xs-12 heading">
-                    INVOICE
-                </div>
-            </div>
+
+        <Header value={default_invoice.invoice_number} 
+        styleImg={{display: isShow ? 'block':'none'}} 
+        stylePrint={{display: print ? 'none':''}} 
+        editLogo={handleEditLogo} 
+        toggleLogo={()=>{ isShow ? setIsShow(false) : setIsShow(true)}} 
+        src={logo}  
+        isShow={isShow}
+        />
+
+        <Infos customer={default_invoice.customer_info} 
+        company={default_invoice.company_info} 
+        value={currencySimbol} 
+        onChange={e =>{setCurrencySimbol(e.target.value)}}
+        selectStyle={{display: print ? 'none':''}}
+        />
         
-
-        <div className="row branding">
-            <div className="col-xs-6">
-                <div className="invoice-number-container">
-                    <label htmlFor="invoice-number">Invoice</label>
-                    <input type="text" id="invoice-number" value=  {' # ' + default_invoice.invoice_number}/>
-                </div>
-            </div>
-            <div className="col-xs-6 logo-container">
-                <input type="file" id="imgInp"  />
-                <img src={logo} id="company_logo"  alt="your image" width="300" style={{display: isShow ? 'block':'none'}}/>
-                <div>
-                    <div className="noPrint" style={{display: print ? 'none':''}}>
-                        <a  href="#" type="file" onClick={handleEditLogo} > Edit Logo </a>
-                        <a id="remove_logo" href="#" onClick={()=>{ isShow ? setIsShow(false) : setIsShow(true)}} >{isShow ? 'Hide':'Show'} logo</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-{/*fim do header*/}
-
-        <div className="row infos">
-            <div className="col-xs-6">
-                <div className="input-container"><input type="text" readOnly value={default_invoice.customer_info.name}></input></div>
-                <div className="input-container"><input type="text" readOnly value={default_invoice.customer_info.web_link}></input></div>
-                <div className="input-container"><input type="text" readOnly value={default_invoice.customer_info.address1}></input></div>
-                <div className="input-container"><input type="text" readOnly value={default_invoice.customer_info.address2}></input></div>
-                <div className="input-container"><input type="text" readOnly value={default_invoice.customer_info.postal}></input></div>
-                <div className="input-container">
-                
-                    <Select name="currencySimbol"
-                    label ="US Dollar ($)"
-                    value ={currencySimbol}
-                    onChange={e =>{setCurrencySimbol(e.target.value)}}
-                    options={[
-                        {value:'$', label:'US Dollar ($)'},
-                        {value:'CAD $', label:'Canadian Dollar ($)'},
-                        {value:'€', label:'Euro (€)'},
-                        {value:'₹', label:'Indian Rupee (₹)'},
-                        {value:'kr', label:'Norwegian krone (kr)'},
-                        {value:'£', label:'British Pound (£)'}
-                     ]}
-                     style={{display: print ? 'none':''}}
-                     className="ng-valid ng-touched ng-dirty ng-valid-parse"
-                    />
-                </div>
-            </div>
-            <div className="col-xs-6 right">
-            <div className="input-container"><input type="text" readOnly value={default_invoice.company_info.name}/></div>
-        <div className="input-container"><input type="text" readOnly value={default_invoice.company_info.web_link}/></div>
-        <div className="input-container"><input type="text" readOnly value={default_invoice.company_info.address1}/></div>
-        <div className="input-container"><input type="text" readOnly value={default_invoice.company_info.address2}/></div>
-        <div className="input-container"><input type="text" readOnly value={default_invoice.company_info.postal}/></div>
-            </div>
-        </div>
-        <div className="items-table">
-            <div className="row header">
-            <div className="col-xs-1">{' '}</div>
-            <div className="col-xs-5">Description</div>
-            <div className="col-xs-2">Quantity</div>
-            <div className="col-xs-2"> {'Cost ' + currencySimbol} </div>
-            <div className="col-xs-2 text-right">Total</div>
-        </div>
-
-
-
+        <Table 
+        currencySimbol ={currencySimbol} 
+        product= {product}
+        removeProductStyle={{display: print ? 'none':''}} 
+        removeProduct= { handleRemoveObject}
+        printModeOff ={{display: print? '':'none'}}
+        addProduct ={handleAddObject}
+        addProductStyle={{display: print ? 'none':''}}
+        inputOnChange={handleUpdateObject}
+        subTotal ={handleCalculateSubTotal()}
+        updateDiscount ={(e) =>{handleUpdateDiscount(e.target.value)}}
+        discount ={discount}
+        calculateDiscount ={handleCalculateDiscount()}
+        updateTax={(e)=>{handleUpdateTax(e.target.value)}}
+        tax = {tax}
+        calculateTax= {handleCalculateTax()}
+        grandTotal={handleCalculateGrandtotal()}
+        />
        
-   
-      
-        
-       {product.map((item) => [ 
-        <div className="row invoice-item" key={item.id}>
-        <div className="col-xs-1 " style={{display: print ? 'none':''}}>
-              <a className="btn btn-danger" onClick={() => handleRemoveObject(item)} >[x]</a>
-        </div>
-        <div className="col-xs-1" style={{display: print? '':'none'}}></div>
-        <div className="col-xs-5 input-container" >
-            <Input size="" placeholder ="Description" value={item.description} onChange={(e)=>{handleUpdateObject(item,"description",e.target.value)}}  />        
-        </div>
-        <div className="col-xs-2 input-container" >
-             <Input size="4" placeholder ="Quantity" value={item.qty} onChange={(e)=>{handleUpdateObject(item,"qty",e.target.value)}} />
-            
-        </div>
-        <div className="col-xs-2 input-container" >
-            <Input size="6" placeholder ="Cost" value={item.cost} onChange={(e)=>{handleUpdateObject(item,"cost",e.target.value)}} />
-           
-        </div>
-        <div className="col-xs-2 text-right input-container">
-          {currencySimbol + item.total}
-        </div>
-        </div>
-                ])}
-            
-            
-
-       
-        <div className="row invoice-item">
-        <div className="col-xs-12 add-item-container" style={{display: print ? 'none':''}}>
-          <a className="btn btn-primary" onClick={handleAddObject} >[+]</a>
-        </div>
-        </div>
-      
-      <div className="row">
-        <div className="col-xs-10 text-right">Sub Total</div>
-            <div className="col-xs-2 text-right">{currencySimbol +handleCalculateSubTotal()}</div>
-      </div>
-      <div className="row">
-        <div className="col-xs-10 text-right">Tax(%): <input  style={{width: '43px'}} defaultValue={tax} onChange={(e)=>{handleUpdateTax(e.target.value)}}/></div>
-            <div className="col-xs-2 text-right">{currencySimbol+handleCalculateTax()}</div>
-      </div>
-      <div className="row">
-        <div className="col-xs-10 text-right">Grand Total:</div>
-            <div className="col-xs-2 text-right">{currencySimbol+handleCalculateGrandtotal()}</div>
-      </div>
-    </div>
 
     <div className="row noPrint actions">
       <a  className="btn btn-primary" onClick={handlePrintInfo} style={{display: print ? '':'none'}} >Print</a>
-      <a  className="btn btn-primary" >Reset</a>
+      <a  className="btn btn-primary" style={{display: print ? 'none':''}} onClick={handleReset} >Reset</a>
       <a  className="btn btn-primary" onClick={()=>{ print ? setPrint(false) : setPrint(true)}} style={{display: print ? 'none': ''}}>Turn On Print Mode</a>
       <a  className="btn btn-primary" onClick={()=>{ print ? setPrint(false) : setPrint(true)}} style={{display: print ? '':'none'}}>Turn Off Print Mode</a>
     </div>
@@ -248,7 +188,7 @@ function Invoice(){
 
   </div>
   
-        </>
+        
     );
 
 
