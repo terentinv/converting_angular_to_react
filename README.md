@@ -13,4 +13,12 @@ To run the project in your local machine use the webpack script yarn dev
 
 To build the project to production use the webpack script yarn build
 
+# :gear: technologies
 
+Used technologies:
+
+  -ReactJs
+  -Babel
+  -Webpack
+  -Yarn
+  -JavaScript
